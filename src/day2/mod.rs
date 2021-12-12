@@ -2,19 +2,27 @@
 struct Position {
     horiz: u32,
     depth: u32,
+    aim: u32,
 }
 
 impl Position {
     fn forward(&mut self, dist: u32) {
         self.horiz = self.horiz + dist;
+        self.depth = self.depth + self.aim * dist; // Comment out for P1 behavior
     }
 
     fn up(&mut self, dist: u32) {
-        self.depth = self.depth - dist;
+        self.aim = self.aim - dist;
+
+        // For P1, replace with:
+        // self.depth = self.depth - dist;
     }
 
     fn down(&mut self, dist: u32) {
-        self.depth = self.depth + dist;
+        self.aim = self.aim + dist;
+
+        // For P1, replace with:
+        // self.depth = self.depth + dist;
     }
 
     fn command(&mut self, comm: Command) {
@@ -72,7 +80,7 @@ fn get_input() -> Vec<Command> {
     }
 }
 
-fn part1() -> u32 {
+fn calc() -> u32 {
     let mut pos = Position::default();
 
     for command in get_input() {
@@ -82,16 +90,22 @@ fn part1() -> u32 {
     pos.mul()
 }
 
-pub fn part1_pretty() {
-    println!("final pos x final depth: {}", part1());
+pub fn pretty_print() {
+    println!("final pos x final depth: {}", calc());
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    /// No longer holds true because Part 2 changed the behavior of `Position`, and I wasn't sure how to preserve both ways
+    // #[test]
+    // fn t_part1() {
+    //     assert_eq!(part1(), 2120749);
+    // }
+
     #[test]
-    fn t_part1() {
-        assert_eq!(part1(), 2120749);
+    fn t_part2() {
+        assert_eq!(calc(), 2138382217);
     }
 }
