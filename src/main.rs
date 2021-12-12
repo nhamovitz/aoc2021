@@ -1,5 +1,7 @@
-mod day1;
+use day2::part1_pretty;
+
+mod day2;
 
 fn main() {
-    day1::part2_pretty();
+    part1_pretty();
 }
