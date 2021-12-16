@@ -1,5 +1,7 @@
-mod day2;
+#![feature(bigint_helper_methods)]
+
+mod day3;
 
 fn main() {
-    day2::pretty_print();
+    day3::part1_pretty();
 }
