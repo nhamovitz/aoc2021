@@ -1,7 +1,7 @@
 use std::ops::Shl;
 
 fn get_input() -> Vec<&'static str> {
-    include_str!("input").split_terminator("\n").collect()
+    include_str!("input/3.txt").split_terminator("\n").collect()
 }
 
 fn get_gamma(list: Vec<&str>) -> u32 {

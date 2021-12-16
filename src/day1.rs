@@ -9,7 +9,7 @@ fn get_increasing_count(list: &[u32]) -> u32 {
     let mut count = 0;
     for n in list {
         if n > &prev {
-            count = count + 1;
+            count += 1;
         }
         prev = *n;
     }
@@ -18,7 +18,7 @@ fn get_increasing_count(list: &[u32]) -> u32 {
 }
 
 fn get_input() -> Vec<u32> {
-    let input: Result<Vec<_>, _> = include_str!("input.txt")
+    let input: Result<Vec<_>, _> = include_str!("input/1.txt")
         .split_ascii_whitespace()
         .map(|n| n.parse::<u32>())
         .collect();

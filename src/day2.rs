@@ -70,7 +70,7 @@ impl Command {
 }
 
 fn get_input() -> Vec<Command> {
-    let input = include_str!("input.txt");
+    let input = include_str!("input/2.txt");
     let input = input.split_terminator("\n");
 
     let input: Result<Vec<_>, _> = input.map(Command::try_new).collect();
