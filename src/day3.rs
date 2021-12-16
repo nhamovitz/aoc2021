@@ -1,52 +1,44 @@
-use std::ops::Shl;
-
-fn get_input() -> Vec<&'static str> {
-    include_str!("input/3.txt").split_terminator("\n").collect()
-}
-
-fn get_gamma(list: Vec<&str>) -> u32 {
-    let width = list[0].len();
-
-    let mut one_counts = vec![0u32; width];
-
-    for num in &list {
-        for (i, digit) in num.chars().enumerate() {
-            if digit == '1' {
-                one_counts[i] = one_counts[i] + 1;
-            }
-        }
-    }
-
-    // dbg!(&counts);
-
-    let counts = one_counts;
-    let threshold = dbg!((list.len() as f64 / 2.0) as u32);
-    counts
-        .into_iter()
-        .map(|c| if c > threshold { 1 } else { 0 })
-        .rev()
-        .enumerate()
-        .fold(0, |acc, (idx, bit)| {
-            acc + if bit == 1 {
-                2_u32.pow(idx.try_into().unwrap())
-            } else if bit == 0 {
-                0
-            } else {
-                unreachable!()
-            }
-        })
-}
+const INPUT: &'static str = include_str!("input/3.txt");
 
 fn part1() -> u64 {
-    let gamma = get_gamma(get_input());
-    let epsilon = !gamma;
+    let mut input = INPUT.lines().peekable();
 
-    let res = gamma.widening_mul(epsilon);
-    ((res.1 as u64) << 32) + (res.0 as u64)
+    let width = input.peek().map_or(12, |s| s.len());
+    let mut counts = vec![0u64; width];
+
+    let mut len_input = 0u64;
+    for num in input {
+        for (idx, digit) in num.chars().rev().enumerate() {
+            match digit {
+                '1' => {
+                    *counts
+                        .get_mut(idx)
+                        .expect("one of the numbers was longer than the first") += 1;
+                }
+                '0' => {}
+                _ => unreachable!("non-binary digit 😠"),
+            }
+        }
+        len_input += 1;
+    }
+
+    let threshold = len_input / 2;
+    let rates = counts
+        .iter()
+        .map(|n| *n > threshold)
+        .enumerate()
+        .fold((0, 0), |acc, (idx, b)| {
+            let pow = 2u64.pow(idx.try_into().unwrap());
+            if b {
+                (acc.0 + pow, acc.1)
+            } else {
+                (acc.0, acc.1 + pow)
+            }
+        });
+
+    rates.0 * rates.1
 }
 
 pub fn part1_pretty() {
-    println!("gamma rate * episilon rate: {}", part1());
+    println!("part 1: {:?}", part1());
 }
-
-// wrong: 2808908183214
