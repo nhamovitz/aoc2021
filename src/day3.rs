@@ -57,6 +57,17 @@ enum MoreCommon {
     Equal,
 }
 impl MoreCommon {
+    fn from(n: f64, threshold: f64) -> Self {
+        if n < threshold {
+            MoreCommon::Zero
+        } else if n == threshold {
+            MoreCommon::Equal
+        } else if n > threshold {
+            MoreCommon::One
+        } else {
+            unreachable!()
+        }
+    }
     fn oxygen(&self) -> char {
         match self {
             Self::One | Self::Equal => '1',
@@ -70,20 +81,11 @@ impl MoreCommon {
         }
     }
 }
-impl From<std::cmp::Ordering> for MoreCommon {
-    fn from(ord: std::cmp::Ordering) -> Self {
-        match ord {
-            std::cmp::Ordering::Less => Self::Zero,
-            std::cmp::Ordering::Equal => Self::Equal,
-            std::cmp::Ordering::Greater => Self::One,
-        }
-    }
-}
 
 fn part2() -> u64 {
     let input: Vec<_> = INPUT.lines().collect();
 
-    let (counts, width, len_input) = info(input.iter());
+    let (width, len_input) = info(input.iter());
     let len_input: usize = len_input.try_into().unwrap();
 
     let mut oxygen_candidates: HashSet<&str> = input.into_iter().collect();
@@ -138,29 +140,22 @@ fn part2() -> u64 {
     assert_eq!(oxygen_candidates.len(), 1);
     assert_eq!(co2_candidates.len(), 1);
 
-    let lhs = u64::from_str_radix(*oxygen_candidates.iter().next().unwrap(), 2).unwrap();
-    let rhs = u64::from_str_radix(*co2_candidates.iter().next().unwrap(), 2).unwrap();
+    let lhs = single_elem_hs_to_num(oxygen_candidates);
+    let rhs = single_elem_hs_to_num(co2_candidates);
     let prod = lhs * rhs;
     dbg!(lhs, rhs, prod);
     prod
 }
 
+fn single_elem_hs_to_num(hs: HashSet<&str>) -> u64 {
+    assert_eq!(hs.len(), 1);
+    u64::from_str_radix(*hs.iter().next().unwrap(), 2).unwrap()
+}
+
 fn get_common_digits(counts: &[u64], len: u64) -> Vec<MoreCommon> {
     counts
         .iter()
-        .map(|n| {
-            let threshold = len as f64 / 2.;
-            let n = (*n as f64);
-            if n < threshold {
-                MoreCommon::Zero
-            } else if n == threshold {
-                MoreCommon::Equal
-            } else if n > threshold {
-                MoreCommon::One
-            } else {
-                unreachable!()
-            }
-        })
+        .map(|n| MoreCommon::from(*n as f64, len as f64 / 2.))
         .collect()
 }
 
@@ -184,7 +179,7 @@ fn w_hashsets_incorrect(input: Vec<&str>, width: usize, more_common_digit: Vec<b
         * u64::from_str_radix(co2_candidates.iter().next().unwrap(), 2).unwrap()
 }
 
-fn info<'a, S>(input: impl Iterator<Item = S>) -> (Vec<u64>, usize, u64)
+fn info<'a, S>(input: impl Iterator<Item = S>) -> (usize, u64)
 where
     S: AsRef<str>,
 {
@@ -192,7 +187,7 @@ where
     let width = input.peek().map_or(12, |s| s.as_ref().len());
 
     let (counts, len_input) = counts_in(width, input);
-    (counts, width, len_input)
+    (width, len_input)
 }
 
 fn counts_in<'a, S>(width: usize, input: impl IntoIterator<Item = S>) -> (Vec<u64>, u64)
@@ -220,6 +215,8 @@ where
 // wrong: 11833600
 // wrong:  2253200 (admittedly almost-total guess)
 
+// correct!: 6085575
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -227,5 +224,10 @@ mod tests {
     #[test]
     fn t_part1() {
         assert_eq!(part1(), 2250414);
+    }
+
+    #[test]
+    fn t_part2() {
+        assert_eq!(part2(), 6085575);
     }
 }
