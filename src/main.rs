@@ -1,7 +1,7 @@
 #![feature(test)]
 
-mod day4;
+mod day5;
 
 fn main() {
-    day4::part2_pretty();
+    day5::part1_pretty();
 }
