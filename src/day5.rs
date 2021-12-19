@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use itertools::Itertools;
+
 const INPUT: &'static str = include_str!("input/5.txt");
 
 fn get_input() -> Vec<((u64, u64), (u64, u64))> {
@@ -63,13 +65,11 @@ fn part1() -> u64 {
         let x2 = start.0.max(end.0);
         let y2 = start.1.max(end.1);
 
-        let update_map = |x, y, map: &mut HashMap<_, _>| {
-            if let Some(count) = map.get_mut(&(x, y)) {
-                // eprintln!("updating count {:?} at {:?}", count, (x, y));
+        let mut update_map = |x, y| {
+            if let Some(count) = vent_map.get_mut(&(x, y)) {
                 *count += 1;
             } else {
-                // eprintln!("inserting at {:?}", (x, y));
-                map.insert((x, y), 1);
+                vent_map.insert((x, y), 1);
             }
         };
 
@@ -77,15 +77,15 @@ fn part1() -> u64 {
             (false, false) => continue,
             (true, false) => {
                 for y in y1..=y2 {
-                    update_map(x1, y, &mut vent_map);
+                    update_map(x1, y);
                 }
             }
             (false, true) => {
                 for x in x1..=x2 {
-                    update_map(x, y1, &mut vent_map);
+                    update_map(x, y1);
                 }
             }
-            (true, true) => update_map(x1, y1, &mut vent_map),
+            (true, true) => update_map(x1, y1),
         }
     }
 
@@ -99,11 +99,65 @@ pub fn part1_pretty() {
     println!("day 5 part 1: {}", part1());
 }
 
-// fn part2() -> XXX {}
+fn part2() -> usize {
+    let input = get_input();
 
-// pub fn part2_pretty() {
-//     println!("day XXX part 2: {}", part2());
-// }
+    let mut vent_map = HashMap::new();
+
+    for line in input {
+        let start = line.0;
+        let end = line.1;
+
+        let x1 = start.0.min(end.0);
+        let y1 = start.1.min(end.1);
+
+        let x2 = start.0.max(end.0);
+        let y2 = start.1.max(end.1);
+
+        let mut update_map = |x, y| {
+            if let Some(count) = vent_map.get_mut(&(x, y)) {
+                *count += 1;
+            } else {
+                vent_map.insert((x, y), 1);
+            }
+        };
+
+        match (x1 == x2, y1 == y2) {
+            (false, false) => {
+                // Check for diagonal lines
+                if x2.abs_diff(x1) == y2.abs_diff(y1) {
+                    let rev_y = (start.0 < end.0) != (start.1 < end.1);
+                    let ys = if rev_y {
+                        (y1..=y2).rev().collect_vec()
+                    } else {
+                        (y1..=y2).collect_vec()
+                    };
+                    for (x, y) in (x1..=x2).zip(ys) {
+                        update_map(x, y);
+                    }
+                }
+            }
+            (true, false) => {
+                for y in y1..=y2 {
+                    update_map(x1, y);
+                }
+            }
+            (false, true) => {
+                for x in x1..=x2 {
+                    update_map(x, y1);
+                }
+            }
+            (true, true) => update_map(x1, y1),
+        }
+    }
+
+    vent_map.values().filter(|v| **v >= 2).count()
+}
+// wrong: 21243
+
+pub fn part2_pretty() {
+    println!("day 5 part 2: {}", part2());
+}
 
 #[cfg(test)]
 mod tests {
@@ -116,7 +170,7 @@ mod tests {
 
     #[test]
     fn t_part2() {
-        // assert_eq!( , );
+        assert_eq!(part2(), 19939);
     }
 
     extern crate test;
