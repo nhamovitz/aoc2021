@@ -1,4 +1,4 @@
-use ndarray::{arr2, Array2};
+use ndarray::{arr2, Array2, ArrayView1};
 
 const INPUT: &'static str = include_str!("input/4.txt");
 
@@ -27,8 +27,7 @@ impl Board {
         let mut board: [[BingoSquare; 5]; 5] = Default::default();
         for (r, row) in board_str.lines().enumerate() {
             for (c, val) in row.split_ascii_whitespace().enumerate() {
-                let val = (val.parse().unwrap(), false);
-                board[r][c] = val;
+                board[r][c] = (val.parse().unwrap(), false);
             }
         }
 
@@ -44,7 +43,7 @@ impl Board {
         r2
     }
 
-    fn has_bingo(&self) -> bool {
+    fn has_bingo(&mut self) -> bool {
         for r in self.board.rows() {
             if Self::is_bingo(r) {
                 return true;
@@ -58,7 +57,7 @@ impl Board {
         false
     }
 
-    fn is_bingo(lane: ndarray::ArrayView1<BingoSquare>) -> bool {
+    fn is_bingo(lane: ArrayView1<BingoSquare>) -> bool {
         lane.iter().all(|(_, marked)| *marked)
     }
 
@@ -79,6 +78,10 @@ impl Board {
             .map(|(n, _)| n)
             .sum()
     }
+
+    fn score(&self, draw: u64) -> u64 {
+        self.sum_of_unmarked() * draw
+    }
 }
 
 fn p1_naive() -> u64 {
@@ -98,6 +101,34 @@ fn p1_naive() -> u64 {
     unreachable!()
 }
 
+// Tries: 2
+fn part2() -> u64 {
+    let (draws, mut boards) = get_input();
+
+    let mut next_is_last_winner = false;
+    let mut won_boards = 0;
+    for draw in draws {
+        for board in &mut boards {
+            if !board.has_bingo() {
+                board.mark_number(draw);
+                if board.has_bingo() {
+                    won_boards += 1;
+                    if next_is_last_winner {
+                        return board.score(draw);
+                    }
+                }
+            }
+        }
+
+        if won_boards == boards.len() - 1 {
+            next_is_last_winner = true;
+        }
+    }
+
+    unreachable!()
+}
+// wrong: 12441
+
 fn get_input() -> (Vec<u64>, Vec<Board>) {
     let mut input = INPUT.split_terminator("\n\n");
     let draws = input
@@ -106,7 +137,7 @@ fn get_input() -> (Vec<u64>, Vec<Board>) {
         .split(",")
         .map(|n| n.parse().unwrap())
         .collect::<Vec<_>>();
-    let boards = input.map(Board::new).collect::<Vec<_>>();
+    let boards = input.map(Board::from_arr).collect::<Vec<_>>();
     (draws, boards)
 }
 
@@ -114,11 +145,9 @@ pub fn part1_pretty() {
     println!("day 4 part 1: {}", p1_naive());
 }
 
-// fn part2() -> XXX {}
-
-// pub fn part2_pretty() {
-//     println!("day XXX part 2: {}", part2());
-// }
+pub fn part2_pretty() {
+    println!("day 4 part 2: {}", part2());
+}
 
 #[cfg(test)]
 mod tests {
@@ -131,6 +160,6 @@ mod tests {
 
     #[test]
     fn t_part2() {
-        // assert_eq!( , );
+        assert_eq!(part2(), 23670);
     }
 }
