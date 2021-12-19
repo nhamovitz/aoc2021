@@ -25,4 +25,17 @@ mod tests {
     fn t_part2() {
         // assert_eq!( , );
     }
+
+    extern crate test;
+    use test::{black_box, Bencher};
+
+    #[bench]
+    fn b_part1(b: &mut Bencher) {
+        b.iter(|| part1());
+    }
+
+    #[bench]
+    fn b_part2(b: &mut Bencher) {
+        b.iter(|| part2());
+    }
 }

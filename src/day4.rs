@@ -1,4 +1,5 @@
 use ndarray::{arr2, Array2, ArrayView1};
+use std::{convert::Infallible, str::FromStr};
 
 const INPUT: &'static str = include_str!("input/4.txt");
 
@@ -84,6 +85,14 @@ impl Board {
     }
 }
 
+impl FromStr for Board {
+    type Err = Infallible;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from_arr(s))
+    }
+}
+
 fn p1_naive() -> u64 {
     let (draws, mut boards) = get_input();
 
@@ -137,7 +146,7 @@ fn get_input() -> (Vec<u64>, Vec<Board>) {
         .split(",")
         .map(|n| n.parse().unwrap())
         .collect::<Vec<_>>();
-    let boards = input.map(Board::from_arr).collect::<Vec<_>>();
+    let boards = input.map(Board::new).collect::<Vec<_>>();
     (draws, boards)
 }
 
@@ -153,6 +162,9 @@ pub fn part2_pretty() {
 mod tests {
     use super::*;
 
+    extern crate test;
+    use test::{black_box, Bencher};
+
     #[test]
     fn t_part1() {
         assert_eq!(p1_naive(), 44088);
@@ -161,5 +173,39 @@ mod tests {
     #[test]
     fn t_part2() {
         assert_eq!(part2(), 23670);
+    }
+
+    fn get_board_str() -> &'static str {
+        let mut input = INPUT.split_terminator("\n\n");
+        input.next();
+        input.next().unwrap()
+    }
+
+    #[bench]
+    fn b_board_arr(b: &mut Bencher) {
+        let s = get_board_str();
+        b.iter(|| {
+            let s = black_box(s);
+            Board::from_arr(s)
+        })
+    }
+
+    #[bench]
+    fn b_board_vec(b: &mut Bencher) {
+        let s = get_board_str();
+        b.iter(|| {
+            let s = black_box(s);
+            Board::from_vec(s)
+        })
+    }
+
+    #[bench]
+    fn b_part2(b: &mut Bencher) {
+        b.iter(|| part2());
+    }
+
+    #[bench]
+    fn b_part1_naive(b: &mut Bencher) {
+        b.iter(|| p1_naive());
     }
 }
