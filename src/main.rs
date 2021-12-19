@@ -2,8 +2,8 @@
 #![feature(test)]
 #![feature(int_abs_diff)]
 
-mod day5;
+mod day6;
 
 fn main() {
-    day5::part2_pretty();
+    day6::part1_pretty();
 }
