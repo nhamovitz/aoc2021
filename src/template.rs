@@ -11,3 +11,18 @@ fn part2() -> XXX {}
 pub fn part2_pretty() {
     println!("day XXX part 2: {}", part2());
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn t_part1() {
+        assert_eq!(part1(), XXX);
+    }
+
+    #[test]
+    fn t_part2() {
+        // assert_eq!( , );
+    }
+}
