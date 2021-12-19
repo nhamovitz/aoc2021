@@ -1,10 +1,12 @@
+use std::{fmt::Debug, str::FromStr};
+
 use itertools::{repeat_n, Itertools};
 
 const INPUT: &'static str = include_str!("input/6.txt");
 
 #[derive(Clone)]
 struct Lanternfish {
-    timer: u64,
+    timer: u8,
 }
 
 impl Default for Lanternfish {
@@ -14,7 +16,7 @@ impl Default for Lanternfish {
 }
 
 impl Lanternfish {
-    fn new_adult(timer: u64) -> Self {
+    fn new_adult(timer: u8) -> Self {
         Self { timer }
     }
 
@@ -29,7 +31,14 @@ impl Lanternfish {
     }
 }
 
-fn get_input() -> Vec<u64> {
+trait TimerVal: FromStr + Debug {}
+impl TimerVal for u8 {}
+impl TimerVal for u64 {}
+
+fn get_input<Num: TimerVal>() -> Vec<Num>
+where
+    <Num as FromStr>::Err: Debug,
+{
     INPUT
         .trim()
         .split(",")
@@ -39,12 +48,17 @@ fn get_input() -> Vec<u64> {
 
 // Tries: 1
 fn part1() -> u64 {
+    run_simulation(80)
+}
+
+fn run_simulation(days: u64) -> u64 {
     let mut fishies = get_input()
         .iter()
         .map(|t| Lanternfish::new_adult(*t))
         .collect_vec();
 
-    for _ in 0..80 {
+    for d in 0..days {
+        eprintln!("day {}", d);
         let mut to_add = 0;
         for fishie in &mut fishies {
             if fishie.update() {
@@ -52,6 +66,7 @@ fn part1() -> u64 {
             }
         }
         fishies.extend(repeat_n(Lanternfish::default(), to_add));
+        eprintln!("len {}", fishies.len());
     }
 
     fishies.len().try_into().unwrap()
@@ -62,11 +77,20 @@ pub fn part1_pretty() {
 }
 
 fn part2() -> u64 {
+    // u64: Day 188, len  4792662916; fails day 189
+    //  u8: Day 212, len 38951363935; fails day 213
+    // run_simulation(256)
+
+    let mut fishies = get_input()
+        .iter()
+        .map(|t| Lanternfish::new_adult(*t))
+        .collect_vec();
+
     todo!()
 }
 
 pub fn part2_pretty() {
-    println!("day XXX part 2: {}", part2());
+    println!("day 6 part 2: {}", part2());
 }
 
 #[cfg(test)]
@@ -75,7 +99,7 @@ mod tests {
 
     #[test]
     fn t_part1() {
-        // assert_eq!(part1(), XXX);
+        assert_eq!(part1(), 365131);
     }
 
     #[test]
