@@ -34,16 +34,16 @@ mod tests {
         // assert_eq!( , );
     }
 
-    extern crate test;
-    use test::{black_box, Bencher};
+    // extern crate test;
+    // use test::{black_box, Bencher};
 
-    #[bench]
-    fn b_part1(b: &mut Bencher) {
-        b.iter(|| part1());
-    }
+    // #[bench]
+    // fn b_part1(b: &mut Bencher) {
+    //     b.iter(|| part1());
+    // }
 
-    #[bench]
-    fn b_part2(b: &mut Bencher) {
-        b.iter(|| part2());
-    }
+    // #[bench]
+    // fn b_part2(b: &mut Bencher) {
+    //     b.iter(|| part2());
+    // }
 }

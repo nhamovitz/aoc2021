@@ -1,10 +1,11 @@
 use std::collections::HashMap;
 
 use itertools::Itertools;
+use tap::Pipe;
 
 const INPUT: &'static str = include_str!("input/7.txt");
 
-fn get_input() -> Vec<u16> {
+fn get_input() -> Vec<u64> {
     INPUT
         .trim()
         .split(',')
@@ -13,20 +14,19 @@ fn get_input() -> Vec<u16> {
 }
 
 // Tries: 2
-fn part1() -> u64 {
-    let mut input = get_input();
+fn calculate(f: impl Fn(u64) -> u64, mut input: Vec<u64>) -> u64 {
     input.sort_unstable();
     let input = input;
 
     let min = input[0];
     let max = *input.last().unwrap();
 
-    let mut total_fuel_by_destination = HashMap::with_capacity((max - min + 1).into());
+    let mut total_fuel_by_destination = HashMap::with_capacity((max - min + 1).try_into().unwrap());
 
     for destination in min..=max {
         let fuel = input
             .iter()
-            .map(|start| (start.abs_diff(destination) as u64))
+            .map(|start| start.abs_diff(destination).pipe(&f))
             .sum();
         total_fuel_by_destination.insert(destination, fuel);
     }
@@ -36,12 +36,26 @@ fn part1() -> u64 {
     *fuels[0]
 }
 
+const fn triangle(n: u64) -> u64 {
+    (n * (n + 1)) / 2
+}
+
+#[inline(always)]
+const fn identity(n: u64) -> u64 {
+    n
+}
+
 pub fn part1_pretty() {
     println!("day 7 part 1: {}", part1());
 }
 
+fn part1() -> u64 {
+    calculate(identity, get_input())
+}
+
+// Tries: 1 😁
 fn part2() -> u64 {
-    todo!()
+    calculate(triangle, get_input())
 }
 
 pub fn part2_pretty() {
@@ -54,12 +68,12 @@ mod tests {
 
     #[test]
     fn t_part1() {
-        // assert_eq!(part1(), XXX);
+        assert_eq!(part1(), 328318);
     }
 
     #[test]
     fn t_part2() {
-        // assert_eq!( , );
+        assert_eq!(part2(), 89791146);
     }
 
     extern crate test;
@@ -67,11 +81,13 @@ mod tests {
 
     #[bench]
     fn b_part1(b: &mut Bencher) {
-        b.iter(|| part1());
+        let input = black_box(get_input());
+        b.iter(|| calculate(identity, input.clone()));
     }
 
     #[bench]
     fn b_part2(b: &mut Bencher) {
-        b.iter(|| part2());
+        let input = black_box(get_input());
+        b.iter(|| calculate(triangle, input.clone()));
     }
 }
