@@ -1,5 +1,9 @@
 const INPUT: &'static str = include_str!("input/xxx.txt");
 
+fn get_input() -> Vec<u64> {
+    todo!()
+}
+
 fn part1() -> u64 {
     todo!()
 }
