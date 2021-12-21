@@ -1,8 +1,8 @@
-use std::{fmt::Debug, str::FromStr};
-
 use itertools::{repeat_n, Itertools};
+use std::collections::HashMap;
 
 const INPUT: &'static str = include_str!("input/6.txt");
+// const INPUT: &'static str = include_str!("input/6ex.txt");
 
 #[derive(Clone)]
 struct Lanternfish {
@@ -31,14 +31,7 @@ impl Lanternfish {
     }
 }
 
-trait TimerVal: FromStr + Debug {}
-impl TimerVal for u8 {}
-impl TimerVal for u64 {}
-
-fn get_input<Num: TimerVal>() -> Vec<Num>
-where
-    <Num as FromStr>::Err: Debug,
-{
+fn get_input() -> Vec<u8> {
     INPUT
         .trim()
         .split(',')
@@ -58,7 +51,10 @@ fn run_simulation(days: u64) -> u64 {
         .collect_vec();
 
     for d in 0..days {
-        eprintln!("day {}", d);
+        if days > 100 {
+            print!("Day {:03}: ", d);
+        }
+
         let mut to_add = 0;
         for fishie in &mut fishies {
             if fishie.update() {
@@ -66,7 +62,10 @@ fn run_simulation(days: u64) -> u64 {
             }
         }
         fishies.extend(repeat_n(Lanternfish::default(), to_add));
-        eprintln!("len {}", fishies.len());
+
+        if days > 100 {
+            println!("len {:010}", fishies.len());
+        }
     }
 
     fishies.len().try_into().unwrap()
@@ -76,44 +75,89 @@ pub fn part1_pretty() {
     println!("day 6 part 1: {}", part1());
 }
 
-fn elegantly(days: u64) -> u64 {
-    let (weeks, rem) = num_integer::div_rem(days, 7);
+#[allow(unused_variables)]
+#[allow(unused_mut)]
+// half-formed, buggy, in-progress
+mod elegantly_first_try {
+    use super::*;
 
-    let mut fishies = get_input()
-        .iter()
-        .map(|t| Lanternfish::new_adult(*t))
-        .collect_vec();
+    fn elegantly_(days: u64) -> u64 {
+        let (weeks, rem) = num_integer::div_rem(days, 7);
 
-    let _ = produced_in_a_week_by(fishies);
+        let mut fishies = get_input()
+            .iter()
+            .map(|t| Lanternfish::new_adult(*t))
+            .collect_vec();
 
-    todo!()
+        let _ = produced_in_a_week_by(fishies);
+
+        todo!()
+    }
+    fn produced_in_a_week_by(mut fishies: Vec<Lanternfish>) -> Vec<Lanternfish> {
+        let mut ret = Vec::<Lanternfish>::with_capacity(5);
+        for _ in 0..7 {
+            for fish in &mut ret {
+                fish.update();
+            }
+
+            let mut to_add = 0;
+            for fishie in &mut fishies {
+                if fishie.update() {
+                    to_add += 1;
+                }
+            }
+
+            ret.extend(repeat_n(Lanternfish::default(), to_add));
+        }
+        ret
+    }
+}
+
+type SchoolState = HashMap<u8, usize>;
+
+fn next_state(state: SchoolState) -> SchoolState {
+    let mut result = SchoolState::with_capacity(8);
+
+    // otherwise the 0->6 and the 7->6 `insert`s overwrite each other
+    let mut six_count = 0;
+
+    for (timer, count) in state {
+        match timer {
+            0 => {
+                result.insert(8, count);
+                six_count += count;
+            }
+            7 => {
+                six_count += count;
+            }
+            _ => {
+                result.insert(timer - 1, count);
+            }
+        }
+    }
+
+    result.insert(6, six_count);
+
+    result
+}
+
+fn elegantly(days: u64) -> usize {
+    let initial_state = get_input().into_iter().counts();
+
+    let mut state = initial_state;
+
+    for _ in 0..days {
+        state = next_state(state);
+    }
+    state.into_values().sum()
 }
 
 fn part2() -> u64 {
     // u64: Day 188, len  4792662916; fails day 189
     //  u8: Day 212, len 38951363935; fails day 213
-    run_simulation(256)
+    // run_simulation(256)
 
-    // elegantly(256)
-}
-
-fn produced_in_a_week_by(mut fishies: Vec<Lanternfish>) -> Vec<Lanternfish> {
-    let mut ret = Vec::<Lanternfish>::with_capacity(5);
-    for _ in 0..7 {
-        for fish in &mut ret {
-            fish.update();
-        }
-
-        let mut to_add = 0;
-        for fishie in &mut fishies {
-            if fishie.update() {
-                to_add += 1;
-            }
-        }
-
-        ret.extend(repeat_n(Lanternfish::default(), to_add));
-    }
-    ret
+    elegantly(256).try_into().unwrap()
 }
 
 pub fn part2_pretty() {
@@ -124,26 +168,36 @@ pub fn part2_pretty() {
 mod tests {
     use super::*;
 
+    const P1_ANS: u64 = 365131;
+    const P2_ANS: u64 = 1650309278600;
+
     #[test]
     fn t_part1() {
-        assert_eq!(part1(), 365131);
+        assert_eq!(part1(), P1_ANS);
     }
 
     #[test]
     fn t_part2() {
-        // assert_eq!( , );
+        assert_eq!(part2(), P2_ANS);
+    }
+
+    #[test]
+    fn t_elegantly_p1() {
+        assert_eq!(elegantly(80) as u64, P1_ANS);
     }
 
     extern crate test;
     use test::{black_box, Bencher};
 
     #[bench]
-    fn b_part1(b: &mut Bencher) {
-        b.iter(|| part1());
+    fn b_simulation(b: &mut Bencher) {
+        let days = black_box(80);
+        b.iter(|| run_simulation(days));
     }
 
     #[bench]
-    fn b_part2(b: &mut Bencher) {
-        b.iter(|| part2());
+    fn b_schoolstate(b: &mut Bencher) {
+        let days = black_box(80);
+        b.iter(|| elegantly(days));
     }
 }
