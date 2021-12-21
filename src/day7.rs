@@ -11,12 +11,12 @@ fn get_input() -> Vec<u64> {
 }
 
 // Tries: 2
-fn calculate(f: impl Fn(u64) -> u64, mut input: Vec<u64>) -> u64 {
+fn calculate(f: impl Fn(u64) -> u64, mut input: Vec<u64>) -> Option<u64> {
     input.sort_unstable();
     let input = input;
 
     let min = input[0];
-    let max = *input.last().unwrap();
+    let max = *input.last()?;
 
     let mut least_fuel = u64::MAX;
 
@@ -30,7 +30,7 @@ fn calculate(f: impl Fn(u64) -> u64, mut input: Vec<u64>) -> u64 {
             least_fuel = fuel;
         }
     }
-    least_fuel
+    Some(least_fuel)
 }
 
 const fn triangle(n: u64) -> u64 {
@@ -47,12 +47,12 @@ pub fn part1_pretty() {
 }
 
 fn part1() -> u64 {
-    calculate(&identity, get_input())
+    calculate(&identity, get_input()).unwrap()
 }
 
 // Tries: 1 😁
 fn part2() -> u64 {
-    calculate(&triangle, get_input())
+    calculate(&triangle, get_input()).unwrap()
 }
 
 pub fn part2_pretty() {
