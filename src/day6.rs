@@ -41,7 +41,7 @@ where
 {
     INPUT
         .trim()
-        .split(",")
+        .split(',')
         .map(|s| s.parse().unwrap())
         .collect()
 }
@@ -76,17 +76,44 @@ pub fn part1_pretty() {
     println!("day 6 part 1: {}", part1());
 }
 
-fn part2() -> u64 {
-    // u64: Day 188, len  4792662916; fails day 189
-    //  u8: Day 212, len 38951363935; fails day 213
-    // run_simulation(256)
+fn elegantly(days: u64) -> u64 {
+    let (weeks, rem) = num_integer::div_rem(days, 7);
 
     let mut fishies = get_input()
         .iter()
         .map(|t| Lanternfish::new_adult(*t))
         .collect_vec();
 
+    let _ = produced_in_a_week_by(fishies);
+
     todo!()
+}
+
+fn part2() -> u64 {
+    // u64: Day 188, len  4792662916; fails day 189
+    //  u8: Day 212, len 38951363935; fails day 213
+    run_simulation(256)
+
+    // elegantly(256)
+}
+
+fn produced_in_a_week_by(mut fishies: Vec<Lanternfish>) -> Vec<Lanternfish> {
+    let mut ret = Vec::<Lanternfish>::with_capacity(5);
+    for _ in 0..7 {
+        for fish in &mut ret {
+            fish.update();
+        }
+
+        let mut to_add = 0;
+        for fishie in &mut fishies {
+            if fishie.update() {
+                to_add += 1;
+            }
+        }
+
+        ret.extend(repeat_n(Lanternfish::default(), to_add));
+    }
+    ret
 }
 
 pub fn part2_pretty() {
