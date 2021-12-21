@@ -18,18 +18,19 @@ fn calculate(f: impl Fn(u64) -> u64, mut input: Vec<u64>) -> u64 {
     let min = input[0];
     let max = *input.last().unwrap();
 
-    let mut fuels = Vec::with_capacity((max - min + 1).try_into().unwrap());
+    let mut least_fuel = u64::MAX;
 
     for destination in min..=max {
         let fuel = input
             .iter()
             .map(|start| start.abs_diff(destination).pipe(&f))
             .sum();
-        fuels.push(fuel);
-    }
 
-    fuels.sort_unstable();
-    fuels[0]
+        if fuel < least_fuel {
+            least_fuel = fuel;
+        }
+    }
+    least_fuel
 }
 
 const fn triangle(n: u64) -> u64 {
@@ -46,12 +47,12 @@ pub fn part1_pretty() {
 }
 
 fn part1() -> u64 {
-    calculate(identity, get_input())
+    calculate(&identity, get_input())
 }
 
 // Tries: 1 😁
 fn part2() -> u64 {
-    calculate(triangle, get_input())
+    calculate(&triangle, get_input())
 }
 
 pub fn part2_pretty() {
