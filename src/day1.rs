@@ -1,7 +1,7 @@
 use tap::Pipe;
 
 fn get_increasing_count(list: &[u32]) -> u32 {
-    if list.len() == 0 {
+    if list.is_empty() {
         return 0;
     }
 

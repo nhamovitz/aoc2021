@@ -1,7 +1,7 @@
 use ndarray::{arr2, Array2, ArrayView1};
 use std::{convert::Infallible, str::FromStr};
 
-const INPUT: &'static str = include_str!("input/4.txt");
+const INPUT: &str = include_str!("input/4.txt");
 
 type BingoSquare = (u64, bool);
 
@@ -143,7 +143,7 @@ fn get_input() -> (Vec<u64>, Vec<Board>) {
     let draws = input
         .next()
         .unwrap()
-        .split(",")
+        .split(',')
         .map(|n| n.parse().unwrap())
         .collect::<Vec<_>>();
     let boards = input.map(Board::new).collect::<Vec<_>>();

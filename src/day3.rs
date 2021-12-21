@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-const INPUT: &'static str = include_str!("input/3.txt");
+const INPUT: &str = include_str!("input/3.txt");
 
 fn part1() -> u64 {
     let mut input = INPUT.lines().peekable();
@@ -179,18 +179,18 @@ fn w_hashsets_incorrect(input: Vec<&str>, width: usize, more_common_digit: Vec<b
         * u64::from_str_radix(co2_candidates.iter().next().unwrap(), 2).unwrap()
 }
 
-fn info<'a, S>(input: impl Iterator<Item = S>) -> (usize, u64)
+fn info<S>(input: impl Iterator<Item = S>) -> (usize, u64)
 where
     S: AsRef<str>,
 {
     let mut input = input.peekable();
     let width = input.peek().map_or(12, |s| s.as_ref().len());
 
-    let (counts, len_input) = counts_in(width, input);
+    let (_counts, len_input) = counts_in(width, input);
     (width, len_input)
 }
 
-fn counts_in<'a, S>(width: usize, input: impl IntoIterator<Item = S>) -> (Vec<u64>, u64)
+fn counts_in<S>(width: usize, input: impl IntoIterator<Item = S>) -> (Vec<u64>, u64)
 where
     S: AsRef<str>,
 {

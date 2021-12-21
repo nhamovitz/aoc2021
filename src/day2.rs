@@ -7,19 +7,19 @@ struct Position {
 
 impl Position {
     fn forward(&mut self, dist: u32) {
-        self.horiz = self.horiz + dist;
-        self.depth = self.depth + self.aim * dist; // Comment out for P1 behavior
+        self.horiz += dist;
+        self.depth += self.aim * dist; // Comment out for P1 behavior
     }
 
     fn up(&mut self, dist: u32) {
-        self.aim = self.aim - dist;
+        self.aim -= dist;
 
         // For P1, replace with:
         // self.depth = self.depth - dist;
     }
 
     fn down(&mut self, dist: u32) {
-        self.aim = self.aim + dist;
+        self.aim += dist;
 
         // For P1, replace with:
         // self.depth = self.depth + dist;
@@ -47,7 +47,7 @@ enum Command {
 
 impl Command {
     fn try_new(s: &str) -> Result<Self, String> {
-        let parts: Vec<_> = s.split(" ").collect();
+        let parts: Vec<_> = s.split(' ').collect();
         if parts.len() != 2 {
             return Err(s.to_owned());
         }
@@ -71,7 +71,7 @@ impl Command {
 
 fn get_input() -> Vec<Command> {
     let input = include_str!("input/2.txt");
-    let input = input.split_terminator("\n");
+    let input = input.split_terminator('\n');
 
     let input: Result<Vec<_>, _> = input.map(Command::try_new).collect();
     match input {

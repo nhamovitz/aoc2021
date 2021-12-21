@@ -1,6 +1,6 @@
 use tap::Pipe;
 
-const INPUT: &'static str = include_str!("input/7.txt");
+const INPUT: &str = include_str!("input/7.txt");
 
 fn get_input() -> Vec<u64> {
     INPUT

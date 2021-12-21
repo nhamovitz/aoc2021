@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use itertools::Itertools;
 
-const INPUT: &'static str = include_str!("input/5.txt");
+const INPUT: &str = include_str!("input/5.txt");
 
 fn get_input() -> Vec<((u64, u64), (u64, u64))> {
     let mut res = vec![];
@@ -161,6 +161,8 @@ pub fn part2_pretty() {
 
 #[cfg(test)]
 mod tests {
+    #![allow(unused_imports)]
+
     use super::*;
 
     #[test]
@@ -181,8 +183,8 @@ mod tests {
         b.iter(|| part1());
     }
 
-    #[bench]
-    fn b_part2(b: &mut Bencher) {
-        // b.iter(|| part2());
-    }
+    // #[bench]
+    // fn b_part2(b: &mut Bencher) {
+    //     b.iter(|| part2());
+    // }
 }

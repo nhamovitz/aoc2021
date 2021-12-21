@@ -1,4 +1,4 @@
-const INPUT: &'static str = include_str!("input/xxx.txt");
+const INPUT: &str = include_str!("input/xxx.txt");
 
 fn get_input() -> Vec<u64> {
     todo!()

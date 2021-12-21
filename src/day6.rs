@@ -1,8 +1,8 @@
 use itertools::{repeat_n, Itertools};
 use std::collections::HashMap;
 
-const INPUT: &'static str = include_str!("input/6.txt");
-// const INPUT: &'static str = include_str!("input/6ex.txt");
+const INPUT: &str = include_str!("input/6.txt");
+// const INPUT: &str = include_str!("input/6ex.txt");
 
 #[derive(Clone)]
 struct Lanternfish {
