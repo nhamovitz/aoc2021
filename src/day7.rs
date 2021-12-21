@@ -1,6 +1,3 @@
-use std::collections::HashMap;
-
-use itertools::Itertools;
 use tap::Pipe;
 
 const INPUT: &'static str = include_str!("input/7.txt");
@@ -21,19 +18,18 @@ fn calculate(f: impl Fn(u64) -> u64, mut input: Vec<u64>) -> u64 {
     let min = input[0];
     let max = *input.last().unwrap();
 
-    let mut total_fuel_by_destination = HashMap::with_capacity((max - min + 1).try_into().unwrap());
+    let mut fuels = Vec::with_capacity((max - min + 1).try_into().unwrap());
 
     for destination in min..=max {
         let fuel = input
             .iter()
             .map(|start| start.abs_diff(destination).pipe(&f))
             .sum();
-        total_fuel_by_destination.insert(destination, fuel);
+        fuels.push(fuel);
     }
 
-    let mut fuels = total_fuel_by_destination.values().collect_vec();
-    fuels.sort();
-    *fuels[0]
+    fuels.sort_unstable();
+    fuels[0]
 }
 
 const fn triangle(n: u64) -> u64 {
