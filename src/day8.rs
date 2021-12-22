@@ -1,15 +1,30 @@
+use itertools::Itertools;
+
 const INPUT: &str = include_str!("input/8.txt");
 
-fn get_input() -> Vec<u64> {
-    todo!()
+fn get_input() -> Vec<&'static str> {
+    INPUT
+        .lines()
+        .map(|line| line.split(" | ").last().unwrap())
+        .collect()
 }
 
+// Tries: 1 😁
 fn part1() -> u64 {
-    todo!()
+    let mut count = 0;
+    get_input()
+        .into_iter()
+        .flat_map(|f| f.split_ascii_whitespace())
+        .for_each(|digit| {
+            if matches!(digit.len(), 2 | 4 | 3 | 7) {
+                count += 1;
+            }
+        });
+    count
 }
 
 pub fn part1_pretty() {
-    println!("day XXX part 1: {}", part1());
+    println!("day 8 part 1: {}", part1())
 }
 
 fn part2() -> u64 {
@@ -17,7 +32,7 @@ fn part2() -> u64 {
 }
 
 pub fn part2_pretty() {
-    println!("day XXX part 2: {}", part2());
+    println!("day 8 part 2: {}", part2());
 }
 
 #[cfg(test)]
