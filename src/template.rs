@@ -24,14 +24,17 @@ pub fn part2_pretty() {
 mod tests {
     use super::*;
 
+    const P1_ANS: u64 = 1____;
+    const P2_ANS: u64 = 2____;
+
     #[test]
     fn t_part1() {
-        // assert_eq!(part1(), XXX);
+        assert_eq!(part1(), P1_ANS);
     }
 
     #[test]
     fn t_part2() {
-        // assert_eq!( , );
+        // assert_eq!( , P2_ANS);
     }
 
     // extern crate test;
