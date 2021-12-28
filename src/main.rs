@@ -6,5 +6,5 @@
 mod day9;
 
 fn main() {
-    day9::part1_pretty();
+    day9::part2_pretty();
 }
