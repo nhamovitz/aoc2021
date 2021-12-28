@@ -67,6 +67,8 @@ fn low_points_of(input: ArrayView2<u8>) -> Vec<(usize, usize)> {
 
 fn get_adjacent_indices(x: usize, y: usize, max_y: usize, max_x: usize) -> Vec<(usize, usize)> {
     let mut adjacent = Vec::with_capacity(4);
+
+    #[allow(clippy::collapsible_else_if)]
     if x == 0 {
         if y == 0 {
             adjacent.push((x, y + 1));
@@ -137,7 +139,7 @@ fn part2() -> u64 {
     let data = get_input();
     let low_points = low_points_of(data.view());
 
-    let mut data = data.mapv(|height| Cell::new(height));
+    let mut data = data.mapv(Cell::new);
 
     let mut basin_sizes = Vec::with_capacity(low_points.len());
 

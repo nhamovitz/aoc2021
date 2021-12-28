@@ -4,6 +4,7 @@
 
 // mod day8;
 mod day10;
+mod day8;
 mod day9;
 
 fn main() {
