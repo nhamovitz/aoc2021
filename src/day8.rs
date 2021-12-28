@@ -37,7 +37,7 @@ pub fn part2_pretty() {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    // use super::*;
 
     #[test]
     fn t_part1() {

@@ -4,9 +4,7 @@
 
 // mod day8;
 mod day10;
-mod day8;
-mod day9;
 
 fn main() {
-    day10::part1_pretty();
+    day10::part2_pretty();
 }
