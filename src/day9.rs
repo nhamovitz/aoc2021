@@ -47,20 +47,22 @@ fn max_indices(dim: (usize, usize)) -> (usize, usize) {
 fn low_points_of(input: ArrayView2<u8>) -> Vec<(usize, usize)> {
     let (max_x, max_y) = max_indices(input.dim());
 
-    let mut low_point_coords = vec![];
+    input
+        .indexed_iter()
+        .filter_map(|(coord, height)| {
+            let adjacent = get_adjacent_indices(coord.0, coord.1, max_y, max_x);
 
-    for (coord, height) in input.indexed_iter() {
-        let adjacent = get_adjacent_indices(coord.0, coord.1, max_y, max_x);
-
-        if adjacent
-            .into_iter()
-            .map(|coord| *height < *input.get(coord).unwrap())
-            .all(|b| b)
-        {
-            low_point_coords.push(coord);
-        }
-    }
-    low_point_coords
+            if adjacent
+                .into_iter()
+                .map(|coord| *height < *input.get(coord).unwrap())
+                .all(|b| b)
+            {
+                Some(coord)
+            } else {
+                None
+            }
+        })
+        .collect()
 }
 
 fn get_adjacent_indices(x: usize, y: usize, max_y: usize, max_x: usize) -> Vec<(usize, usize)> {
