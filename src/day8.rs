@@ -1,5 +1,3 @@
-use itertools::Itertools;
-
 const INPUT: &str = include_str!("input/8.txt");
 
 fn get_input() -> Vec<&'static str> {
@@ -16,6 +14,8 @@ fn part1() -> u64 {
         .into_iter()
         .flat_map(|f| f.split_ascii_whitespace())
         .for_each(|digit| {
+            // This is not "which digit", this is "how many segments are active"
+            // digits 1 4 7 8, respectively
             if matches!(digit.len(), 2 | 4 | 3 | 7) {
                 count += 1;
             }
