@@ -36,92 +36,66 @@ fn part1() -> u64 {
         // subtract 1 from each because dimensions are 1-indexed, and we want the highest possible index
         .pipe(|(x, y)| (x - 1, y - 1));
 
-    dbg!(input.dim());
-
     let mut risk_levels = vec![];
 
-    let mut count = 0;
+    for ((x, y), height) in input.indexed_iter() {
+        let adjacent = get_adjacent_indices(x, y, max_y, max_x);
 
-    'grid: for ((x, y), height) in input.indexed_iter() {
-        // count += 1;
-        // if count > 400 {
-        //     break;
-        // }
-
-        // macro_rules! get_adjacent {
-        //     ($dim:expr, $max:expr) => {{
-        //         let mut to_check = vec![];
-        //         if $dim != 0 {
-        //             to_check.push($dim - 1);
-        //         }
-        //         if $dim != $max - 1 {
-        //             to_check.push($dim + 1);
-        //         }
-        //         to_check
-        //     }};
-        // }
-
-        // let check_xs = get_adjacent!(x, max_x);
-        // let check_ys = get_adjacent!(y, max_y);
-
-        let mut adjacent = vec![];
-
-        // this is horrible but i don't feel like figuring out how to do it elegantly
-        // a previous attempt from a couple days ago is commented out about and it ends up counting diagonally adjacent squares as well :/
-        if x == 0 {
-            if y == 0 {
-                adjacent.push((x, y + 1));
-                adjacent.push((x + 1, y));
-            } else if y == max_y {
-                adjacent.push((x, y - 1));
-                adjacent.push((x + 1, y));
-            } else {
-                adjacent.push((x, y - 1));
-                adjacent.push((x, y + 1));
-                adjacent.push((x + 1, y));
-            }
-        } else if x == max_x {
-            if y == 0 {
-                adjacent.push((x, y + 1));
-                adjacent.push((x - 1, y));
-            } else if y == max_y {
-                adjacent.push((x, y - 1));
-                adjacent.push((x - 1, y));
-            } else {
-                adjacent.push((x, y - 1));
-                adjacent.push((x, y + 1));
-                adjacent.push((x - 1, y));
-            }
-        } else {
-            if y == 0 {
-                adjacent.push((x - 1, y));
-                adjacent.push((x + 1, y));
-                adjacent.push((x, y + 1));
-            } else if y == max_y {
-                adjacent.push((x - 1, y));
-                adjacent.push((x + 1, y));
-                adjacent.push((x, y - 1));
-            } else {
-                adjacent.push((x, y - 1));
-                adjacent.push((x, y + 1));
-                adjacent.push((x + 1, y));
-                adjacent.push((x - 1, y));
-            }
+        if adjacent
+            .into_iter()
+            .map(|coord| *height < *input.get(coord).unwrap())
+            .all(|b| b)
+        {
+            risk_levels.push((*height + 1) as u64);
         }
-
-        for check in &adjacent {
-            if *height >= *input.get(*check).unwrap() {
-                continue 'grid;
-            }
-        }
-
-        // println!("adding point to `risk_levels`. info:");
-        // dbg!((x, y), adjacent, height,);
-
-        risk_levels.push((*height + 1) as u64);
     }
 
     risk_levels.iter().sum()
+}
+
+fn get_adjacent_indices(x: usize, y: usize, max_y: usize, max_x: usize) -> Vec<(usize, usize)> {
+    let mut adjacent = vec![];
+    if x == 0 {
+        if y == 0 {
+            adjacent.push((x, y + 1));
+            adjacent.push((x + 1, y));
+        } else if y == max_y {
+            adjacent.push((x, y - 1));
+            adjacent.push((x + 1, y));
+        } else {
+            adjacent.push((x, y - 1));
+            adjacent.push((x, y + 1));
+            adjacent.push((x + 1, y));
+        }
+    } else if x == max_x {
+        if y == 0 {
+            adjacent.push((x, y + 1));
+            adjacent.push((x - 1, y));
+        } else if y == max_y {
+            adjacent.push((x, y - 1));
+            adjacent.push((x - 1, y));
+        } else {
+            adjacent.push((x, y - 1));
+            adjacent.push((x, y + 1));
+            adjacent.push((x - 1, y));
+        }
+    } else {
+        if y == 0 {
+            adjacent.push((x - 1, y));
+            adjacent.push((x + 1, y));
+            adjacent.push((x, y + 1));
+        } else if y == max_y {
+            adjacent.push((x - 1, y));
+            adjacent.push((x + 1, y));
+            adjacent.push((x, y - 1));
+        } else {
+            adjacent.push((x, y - 1));
+            adjacent.push((x, y + 1));
+            adjacent.push((x + 1, y));
+            adjacent.push((x - 1, y));
+        }
+    }
+    adjacent
 }
 // wrong: 10045
 // wrong:  1738
