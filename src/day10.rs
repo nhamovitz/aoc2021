@@ -90,13 +90,12 @@ fn balance_error(line: &str) -> Option<u64> {
         }
     }
 
-    Some(
-        stack
-            .iter()
-            .rev()
-            .map(|c| COMPLETING_POINT_VALS[c])
-            .fold(0, |acc, points| acc * 5 + points),
-    )
+    let error_score = stack
+        .iter()
+        .rev()
+        .map(|c| COMPLETING_POINT_VALS[c])
+        .fold(0, |acc, points| acc * 5 + points);
+    Some(error_score)
 }
 
 pub fn part2_pretty() {
