@@ -22,7 +22,7 @@ fn get_input() -> Array2<u8> {
             .collect(),
     )
     .unwrap()
-    .reversed_axes()
+    // .reversed_axes() // tests pass with and without this, which is cool
 }
 
 // wrong: 10045
@@ -64,7 +64,7 @@ fn low_points_of(input: ArrayView2<u8>) -> Vec<(usize, usize)> {
 }
 
 fn get_adjacent_indices(x: usize, y: usize, max_y: usize, max_x: usize) -> Vec<(usize, usize)> {
-    let mut adjacent = vec![];
+    let mut adjacent = Vec::with_capacity(4);
     if x == 0 {
         if y == 0 {
             adjacent.push((x, y + 1));
@@ -137,7 +137,7 @@ fn part2() -> u64 {
 
     let mut data = data.mapv(|height| Cell::new(height));
 
-    let mut basin_sizes = vec![];
+    let mut basin_sizes = Vec::with_capacity(low_points.len());
 
     for coord in low_points {
         basin_sizes.push(basin_size_around(coord, data.view_mut()));
@@ -148,13 +148,13 @@ fn part2() -> u64 {
 }
 
 fn basin_size_around(coord: (usize, usize), mut data: ArrayViewMut2<Cell>) -> u64 {
-    let mut basin_size = 0;
     let cell = data.get_mut(coord).unwrap();
 
     if cell.visited || cell.height == 9 {
         return 0;
     }
 
+    let mut basin_size = 0;
     cell.visit();
     basin_size += 1;
 
@@ -184,16 +184,16 @@ mod tests {
         assert_eq!(part2(), 964712);
     }
 
-    // extern crate test;
-    // use test::{black_box, Bencher};
+    extern crate test;
+    use test::Bencher;
 
-    // #[bench]
-    // fn b_part1(b: &mut Bencher) {
-    //     b.iter(|| part1());
-    // }
+    #[bench]
+    fn b_part1(b: &mut Bencher) {
+        b.iter(|| part1());
+    }
 
-    // #[bench]
-    // fn b_part2(b: &mut Bencher) {
-    //     b.iter(|| part2());
-    // }
+    #[bench]
+    fn b_part2(b: &mut Bencher) {
+        b.iter(|| part2());
+    }
 }
