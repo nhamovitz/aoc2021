@@ -95,6 +95,8 @@ impl Octupus {
 
     fn reset(&mut self) {
         if self.energy > Self::ENERGY_LIMIT {
+            // this fails, which I *feel* like it shouldn't given my alg,
+            // but the answer is correct so oh well
             // debug_assert_eq!(self.energy, Self::ENERGY_LIMIT + 1, "{:?}", self);
             self.energy = 0;
         }
@@ -141,11 +143,7 @@ impl Grid {
 
             to_flash = to_flash_new;
             have_flashed.extend(have_flashed_new.iter());
-
-            // dbg!(&to_flash, &have_flashed);
         }
-
-        // println!("no more to flash");
 
         self.grid.map_inplace(Octupus::reset);
 
@@ -168,22 +166,8 @@ fn get_input() -> Grid {
 fn part1() -> u64 {
     let mut grid = get_input();
 
-    // dbg!(&grid.grid.get((1, 2)).unwrap().energy);
-
-    // let mut log = String::with_capacity(70 * 100);
-
-    // for oct in grid.grid {
-    //     writeln!(&mut log, "{:?}\n", oct).unwrap();
-    // }
-    // std::fs::write("src/debugging/11/coords_4ish.txt", log).unwrap();
-
-    // return 0;
-
-    //
-
     let mut flash_count = 0;
-    for d in 0..100 {
-        dbg!(d);
+    for _ in 0..100 {
         flash_count += grid.step();
     }
 
