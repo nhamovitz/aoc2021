@@ -45,15 +45,19 @@ impl Board {
     }
 
     fn has_bingo(&mut self) -> bool {
+        macro_rules! check_for_bingo {
+            ($lane:expr) => {{
+                if Self::is_bingo($lane) {
+                    return true;
+                }
+            }};
+        }
+
         for r in self.board.rows() {
-            if Self::is_bingo(r) {
-                return true;
-            }
+            check_for_bingo!(r)
         }
         for c in self.board.columns() {
-            if Self::is_bingo(c) {
-                return true;
-            }
+            check_for_bingo!(c)
         }
         false
     }
@@ -100,10 +104,26 @@ fn p1_naive() -> u64 {
         for board in &mut boards {
             board.mark_number(*draw);
             // Don't need to check for a completed board for the first 5
+            #[allow(clippy::collapsible_if)]
             if i > 5 {
                 if board.has_bingo() {
                     return board.sum_of_unmarked() * draw;
                 }
+            }
+        }
+    }
+    unreachable!()
+}
+
+fn p1_naive_no5check() -> u64 {
+    let (draws, mut boards) = get_input();
+
+    for draw in draws {
+        for board in boards.iter_mut().skip(5) {
+            board.mark_number(draw);
+            // Don't need to check for a completed board for the first 5
+            if board.has_bingo() {
+                return board.sum_of_unmarked() * draw;
             }
         }
     }
@@ -171,6 +191,11 @@ mod tests {
     }
 
     #[test]
+    fn t_part1_skip5() {
+        assert_eq!(p1_naive_no5check(), 44088);
+    }
+
+    #[test]
     fn t_part2() {
         assert_eq!(part2(), 23670);
     }
@@ -207,5 +232,15 @@ mod tests {
     #[bench]
     fn b_part1_naive(b: &mut Bencher) {
         b.iter(|| p1_naive());
+    }
+
+    #[bench]
+    fn b_part1_naive_no_closure(b: &mut Bencher) {
+        b.iter(p1_naive);
+    }
+
+    #[bench]
+    fn b_part1_naive_skip5(b: &mut Bencher) {
+        b.iter(p1_naive_no5check);
     }
 }
