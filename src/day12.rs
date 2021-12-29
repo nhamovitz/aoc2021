@@ -1,9 +1,4 @@
-use std::{
-    collections::{HashMap, HashSet},
-    vec,
-};
-
-use itertools::Itertools;
+use std::collections::{HashMap, HashSet};
 
 const INPUT: &str = include_str!("input/12ex1.txt");
 
@@ -81,44 +76,86 @@ pub fn part1_pretty() {
 
 #[derive(Clone, Default, Debug)]
 struct Path {
-    path: Vec<Cave>,
+    path: HashSet<(Cave, Option<usize>)>,
     // (which cave we're allowed to visit twice, how many times we've visited it)
-    visit_twice_cave: Option<(Cave, usize)>,
+}
+
+enum CanVisitStatus {
+    CanVisitAndMakeVisitCave,
+    CanVisitButNotMakeVisitCave,
+    CannotVisit,
+    CanVisitOnceMore,
 }
 
 impl Path {
-    fn can_visit(&self, cave: &str) -> bool {
+    fn can_visit(&self, cave: &str) -> CanVisitStatus {
+        use CanVisitStatus::*;
         // dbg!(cave);
-        if is_uppercase(cave)
-            || ((self.visit_twice_cave.is_none() || (self.visit_twice_cave == Some((cave, 1))))
-                && !matches!(cave, "start" | "end"))
-        {
-            return true;
+        if is_uppercase(cave) {
+            return CanVisitButNotMakeVisitCave;
         }
 
-        !self.path.contains(&cave)
+        if matches!(cave, "start" | "end") {
+            return CannotVisit;
+        }
+
+        if self.no_visit_cave_set() {
+            return CanVisitAndMakeVisitCave;
+        }
+
+        // this is the revist-allowed cave
+        let matching_count = self
+            .path
+            .iter()
+            .filter(|(cv, visit_metadata)| &cave == cv && visit_metadata == &Some(1))
+            .count();
+        if matching_count > 0 {
+            debug_assert_eq!(matching_count, 1);
+            return CanVisitOnceMore;
+        }
+
+        // otherwise, "is the cave in the already-visited set?"
+        let matching_count = self.path.iter().filter(|(cv, _)| &cave == cv).count();
+        if matching_count > 0 {
+            debug_assert_eq!(matching_count, 1);
+            return CannotVisit;
+        }
+
+        unreachable!()
     }
 
-    fn visit(&mut self, cave: Cave) -> bool {
-        self.path.push(cave);
+    fn no_visit_cave_set(&self) -> bool {
+        self.path
+            .iter()
+            .all(|(_cave, visit_metadata)| visit_metadata.is_none())
+    }
 
-        if !is_uppercase(cave) {
-            match self.visit_twice_cave {
-                None => true,
-                Some((visit_cave, ref mut visited)) => {
-                    if cave == visit_cave {
-                        debug_assert!(*visited == 1);
-                        *visited += 1;
-                    }
-                    false
+    fn update_cave_if_previously_visited(&mut self, cave: Cave) {
+        let mut updated = 0;
+        for (cv, mut visit_metadata) in &self.path {
+            if let Some(ref mut visits) = visit_metadata {
+                if cv == &cave {
+                    debug_assert_eq!(*visits, 1);
+                    *visits += 1;
+                    updated += 1;
                 }
-            };
+            }
         }
-        false
+        debug_assert_eq!(updated, 1);
     }
 
-    fn set_visit_cave(&mut self, cave: Cave) {
-        self.visit_twice_cave = Some((cave, 1));
+    fn visit(&mut self, cave: Cave, set_visit_cave: bool) {
+        if set_visit_cave {
+            debug_assert!(self.no_visit_cave_set());
+            debug_assert!(!is_uppercase(cave));
+
+            self.path.insert((cave, Some(1)));
+        } else {
+            self.path.insert((cave, None));
+            if !is_uppercase(cave) {
+                self.update_cave_if_previously_visited(cave);
+            }
+        }
     }
 
     fn empty() -> Self {
@@ -132,41 +169,59 @@ fn traverse_p2(
     start: Cave,
     destination: Cave,
     mut path: Path,
+    iter: u64,
 ) -> u64 {
     if start == destination {
         // println!("hit recursion limit dw");
-        println!("{:?}         {:?}", path.path, path.visit_twice_cave);
+        println!("{:?}", path.path);
         return 1;
     }
 
-    if !path.can_visit(start) {
+    if iter > 50  {
         return 0;
     }
-
     let mut paths = 0;
-
-    let to_visit = graph.get(start).unwrap();
-
-    if path.visit(start) {
-        let mut path_visiting_cave = path.clone();
-        path_visiting_cave.set_visit_cave(start);
-
-        for cave in to_visit {
-            paths += traverse_p2(graph, cave, destination, path_visiting_cave.clone());
+    for cave in graph.get(start).unwrap() {
+        // short-circuits: we want to recurse if either 1) it's uppercase
+        // (probably faster to check) to 2) we haven't already visited this cave
+        match path.can_visit(cave) {
+            CanVisitStatus::CanVisitAndMakeVisitCave => {
+                path.visit(cave, true);
+                paths += traverse_p2(graph, cave, destination, path.clone(), iter + 1);
+            }
+            CanVisitStatus::CanVisitButNotMakeVisitCave | CanVisitStatus::CanVisitOnceMore => {
+                path.visit(cave, false);
+                paths += traverse_p2(graph, cave, destination, path.clone(), iter + 1);
+            }
+            CanVisitStatus::CannotVisit => {}
         }
     }
-
-    let mut paths = 0;
-    for cave in to_visit {
-        paths += traverse_p2(graph, cave, destination, path.clone());
-    }
-
     paths
+
+    // let mut paths = 0;
+
+    // let to_visit = graph.get(start).unwrap();
+
+    // if path.visit(start) {
+    //     let mut path_visiting_cave = path.clone();
+    //     path_visiting_cave.set_visit_cave(start);
+
+    //     for cave in to_visit {
+    //         paths += traverse_p2(graph, cave, destination, path_visiting_cave.clone());
+    //     }
+    // }
+
+    // let mut paths = 0;
+    // for cave in to_visit {
+    //     paths += traverse_p2(graph, cave, destination, path.clone());
+    // }
+
+    // paths
 }
 
 fn part2() -> u64 {
     let graph = get_input();
-    traverse_p2(&graph, "start", "end", Path::empty())
+    traverse_p2(&graph, "start", "end", Path::empty(), 0)
 }
 
 pub fn part2_pretty() {
