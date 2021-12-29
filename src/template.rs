@@ -24,7 +24,9 @@ pub fn part2_pretty() {
 mod tests {
     use super::*;
 
+    #[allow(clippy::inconsistent_digit_grouping)]
     const P1_ANS: u64 = 1____;
+    #[allow(clippy::inconsistent_digit_grouping)]
     const P2_ANS: u64 = 2____;
 
     #[test]
