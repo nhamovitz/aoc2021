@@ -1,6 +1,6 @@
 const INPUT: &str = include_str!("input/xxx.txt");
 
-fn get_input() -> Vec<u64> {
+fn parse_input() -> Vec<u64> {
     todo!()
 }
 

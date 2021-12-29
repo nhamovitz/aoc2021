@@ -1,10 +1,11 @@
 #![allow(dead_code)]
 #![feature(test)]
 #![feature(int_abs_diff)]
+#![feature(array_windows)]
 #![feature(mixed_integer_ops)]
 
-mod day13;
+mod day14;
 
 fn main() {
-    day13::part2_pretty();
+    day14::part1_pretty();
 }
