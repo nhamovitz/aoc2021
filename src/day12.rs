@@ -16,28 +16,29 @@ fn get_input() -> HashMap<Cave, HashSet<Cave>> {
 
         // no idea which of these to use lol
 
-        // macro_rules! insert_path {
-        //     ($start:ident, $end:ident, $map:ident) => {{
-        //         if let Some(connections) = ($map).get_mut($start) {
-        //             connections.push($end)
-        //         } else {
-        //             $map.insert($start, vec![$end]);
-        //         }
-        //     }};
-        // }
-        // insert_path!(a, b, map);
-        // insert_path!(b, a, map);
+        macro_rules! insert_path {
+            ($start:ident, $end:ident, $map:ident) => {{
+                if let Some(connections) = ($map).get_mut($start) {
+                    let inserted = connections.insert($end);
+                    debug_assert!(inserted);
+                } else {
+                    $map.insert($start, HashSet::from([$end]));
+                }
+            }};
+        }
+        insert_path!(a, b, map);
+        insert_path!(b, a, map);
 
-        let mut insert_path = |start, end| {
-            if let Some(connections) = map.get_mut(start) {
-                let wasnt_present = connections.insert(end);
-                debug_assert!(wasnt_present);
-            } else {
-                map.insert(start, HashSet::from([end]));
-            }
-        };
-        insert_path(a, b);
-        insert_path(b, a);
+        // let mut insert_path = |start, end| {
+        //     if let Some(connections) = map.get_mut(start) {
+        //         let wasnt_present = connections.insert(end);
+        //         debug_assert!(wasnt_present);
+        //     } else {
+        //         map.insert(start, HashSet::from([end]));
+        //     }
+        // };
+        // insert_path(a, b);
+        // insert_path(b, a);
     }
 
     map
