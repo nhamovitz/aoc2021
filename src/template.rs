@@ -24,19 +24,17 @@ pub fn part2_pretty() {
 mod tests {
     use super::*;
 
-    #[allow(clippy::inconsistent_digit_grouping)]
-    const P1_ANS: u64 = 1____;
-    #[allow(clippy::inconsistent_digit_grouping)]
-    const P2_ANS: u64 = 2____;
+    // const P1_ANS: u64 = 1____;
+    // const P2_ANS: u64 = 2____;
 
     #[test]
     fn t_part1() {
-        assert_eq!(part1(), P1_ANS);
+        // assert_eq!(part1(), P1_ANS);
     }
 
     #[test]
     fn t_part2() {
-        // assert_eq!( , P2_ANS);
+        // assert_eq!(part2(), P2_ANS);
     }
 
     // extern crate test;
@@ -44,11 +42,11 @@ mod tests {
 
     // #[bench]
     // fn b_part1(b: &mut Bencher) {
-    //     b.iter(|| part1());
+    //     b.iter(part1);
     // }
 
     // #[bench]
     // fn b_part2(b: &mut Bencher) {
-    //     b.iter(|| part2());
+    //     b.iter(part2);
     // }
 }
