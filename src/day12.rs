@@ -74,7 +74,7 @@ pub fn part1_pretty() {
     println!("day 12 part 1: {}", part1());
 }
 
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Debug)]
 struct Path {
     visited: Vec<Cave>,
     visit_twice_cave: (Cave, usize),
@@ -82,7 +82,6 @@ struct Path {
 
 impl Path {
     fn can_visit(&self, cave: &str) -> bool {
-        // dbg!(cave);
         if is_uppercase(cave) {
             return true;
         }
@@ -106,7 +105,7 @@ impl Path {
             self.visited.push("visit_cave");
         } else {
             // comment out to add the uppercase caves to the path, for debugging
-            // update: nope, uncommenting this,, breaks the program,, 😭😭
+            // update: nope, uncommenting this,, breaks the program,, -_- 😭😭
             // if !is_uppercase(cave) {
             self.visited.push(cave);
             // }
@@ -133,28 +132,27 @@ fn traverse_p2(
     mut path: Path,
     paths: &mut HashSet<Vec<Cave>>,
 ) -> u64 {
-    if start == destination {
-        // println!("hit recursion limit dw");
-        if path.uses_visit_cave() {
-            // dbg!(&path);
-            let mut replace = vec![];
-            for (i, cave) in path.visited.iter().enumerate() {
-                if cave == &"visit_cave" {
-                    replace.push(i);
-                }
-            }
-            let mut res = path.visited;
-            for i in replace {
-                res[i] = path.visit_twice_cave.0;
-            }
+    path.visit(start); // this could be after the conditional for tiny bit more efficiency, but this way makes it easier to read the path
 
-            paths.insert(res);
+    if start == destination {
+        if path.uses_visit_cave() {
+            paths.insert(
+                path.visited
+                    .iter()
+                    .map(|cv| {
+                        if cv == &"visit_cave" {
+                            path.visit_twice_cave.0
+                        } else {
+                            cv
+                        }
+                    })
+                    .collect(),
+            );
             return 1;
         } else {
             return 0;
         }
     }
-    path.visit(start); // this could be after the conditional for tiny bit more efficiency, but this way makes it easier to read the path
 
     let mut path_total = 0;
     // dbg!(start);
@@ -177,7 +175,7 @@ fn part2() -> u64 {
         .keys()
         .filter(|cave| !is_uppercase(cave) && !matches!(**cave, "start" | "end"))
     {
-        traverse_p2(
+        let _ = traverse_p2(
             &graph,
             "start",
             "end",
@@ -217,8 +215,8 @@ mod tests {
         b.iter(part1);
     }
 
-    #[bench]
-    fn b_part2(b: &mut Bencher) {
-        b.iter(part2);
-    }
+    // #[bench]
+    // fn b_part2(b: &mut Bencher) {
+    //     b.iter(part2);
+    // }
 }
