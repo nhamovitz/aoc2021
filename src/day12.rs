@@ -30,7 +30,8 @@ fn get_input() -> HashMap<Cave, HashSet<Cave>> {
 
         let mut insert_path = |start, end| {
             if let Some(connections) = map.get_mut(start) {
-                debug_assert!(connections.insert(end));
+                let wasnt_present = connections.insert(end);
+                debug_assert!(wasnt_present);
             } else {
                 map.insert(start, HashSet::from([end]));
             }
