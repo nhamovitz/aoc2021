@@ -3,8 +3,8 @@
 #![feature(int_abs_diff)]
 #![feature(mixed_integer_ops)]
 
-mod day12;
+mod day13;
 
 fn main() {
-    day12::part2_pretty();
+    day13::part2_pretty();
 }
