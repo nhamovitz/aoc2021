@@ -7,8 +7,8 @@ const INPUT: &str = include_str!("input/12.txt");
 
 type Cave = &'static str;
 
-fn is_lowercase(s: &str) -> bool {
-    s.chars().next().unwrap().is_ascii_lowercase()
+fn is_uppercase(s: &str) -> bool {
+    s.chars().next().unwrap().is_ascii_uppercase()
 }
 
 fn get_input() -> HashMap<Cave, HashSet<Cave>> {
@@ -56,23 +56,17 @@ fn traverse(
     destination: Cave,
     mut path: Vec<Cave>,
 ) -> u64 {
-    if path.last() == Some(&destination) {
-        return 0;
+    if start == destination {
+        return 1;
     }
 
     path.push(start);
 
     let mut paths = 0;
-
-    let can_get_to = graph.get(start).unwrap();
-    if can_get_to.contains(destination) {
-        paths += 1;
-    }
-
-    for cave in can_get_to {
+    for cave in graph.get(start).unwrap() {
         // short-circuits: we want to recurse if either 1) it's uppercase
         // (probably faster to check) to 2) we haven't already visited this cave
-        if !is_lowercase(cave) || !path.contains(cave) {
+        if is_uppercase(cave) || !path.contains(cave) {
             paths += traverse(graph, cave, destination, path.clone());
         }
     }
