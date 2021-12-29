@@ -3,7 +3,9 @@ use std::{
     vec,
 };
 
-const INPUT: &str = include_str!("input/12.txt");
+use itertools::Itertools;
+
+const INPUT: &str = include_str!("input/12ex1.txt");
 
 type Cave = &'static str;
 
@@ -77,8 +79,94 @@ pub fn part1_pretty() {
     println!("day 12 part 1: {}", part1());
 }
 
+#[derive(Clone, Default, Debug)]
+struct Path {
+    path: Vec<Cave>,
+    // (which cave we're allowed to visit twice, how many times we've visited it)
+    visit_twice_cave: Option<(Cave, usize)>,
+}
+
+impl Path {
+    fn can_visit(&self, cave: &str) -> bool {
+        // dbg!(cave);
+        if is_uppercase(cave)
+            || ((self.visit_twice_cave.is_none() || (self.visit_twice_cave == Some((cave, 1))))
+                && !matches!(cave, "start" | "end"))
+        {
+            return true;
+        }
+
+        !self.path.contains(&cave)
+    }
+
+    fn visit(&mut self, cave: Cave) -> bool {
+        self.path.push(cave);
+
+        if !is_uppercase(cave) {
+            match self.visit_twice_cave {
+                None => true,
+                Some((visit_cave, ref mut visited)) => {
+                    if cave == visit_cave {
+                        debug_assert!(*visited == 1);
+                        *visited += 1;
+                    }
+                    false
+                }
+            };
+        }
+        false
+    }
+
+    fn set_visit_cave(&mut self, cave: Cave) {
+        self.visit_twice_cave = Some((cave, 1));
+    }
+
+    fn empty() -> Self {
+        Self::default()
+    }
+}
+
+// wrong: 32717
+fn traverse_p2(
+    graph: &HashMap<Cave, HashSet<Cave>>,
+    start: Cave,
+    destination: Cave,
+    mut path: Path,
+) -> u64 {
+    if start == destination {
+        // println!("hit recursion limit dw");
+        println!("{:?}         {:?}", path.path, path.visit_twice_cave);
+        return 1;
+    }
+
+    if !path.can_visit(start) {
+        return 0;
+    }
+
+    let mut paths = 0;
+
+    let to_visit = graph.get(start).unwrap();
+
+    if path.visit(start) {
+        let mut path_visiting_cave = path.clone();
+        path_visiting_cave.set_visit_cave(start);
+
+        for cave in to_visit {
+            paths += traverse_p2(graph, cave, destination, path_visiting_cave.clone());
+        }
+    }
+
+    let mut paths = 0;
+    for cave in to_visit {
+        paths += traverse_p2(graph, cave, destination, path.clone());
+    }
+
+    paths
+}
+
 fn part2() -> u64 {
-    todo!()
+    let graph = get_input();
+    traverse_p2(&graph, "start", "end", Path::empty())
 }
 
 pub fn part2_pretty() {
