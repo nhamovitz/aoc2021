@@ -41,13 +41,51 @@ mod cartesian {
         #[cfg(debug_assertions)]
         {
             let metho = cartesian_product_w_method(a.clone(), b.clone());
-            let loopf = cartesian_product_for_loop(a.clone(), b.clone());
+            let loopf = cartesian_product_for_loop(a, b);
 
             assert_eq!(iprod, metho);
             assert_eq!(iprod, loopf);
             assert_eq!(metho, loopf);
         }
         iprod
+    }
+
+    #[cfg(test)]
+    mod bench {
+        use super::*;
+
+        extern crate test;
+        use test::{black_box, Bencher};
+
+        #[bench]
+        fn b_cart_iprod(b: &mut Bencher) {
+            b.iter(|| {
+                cartesian::cartesian_product_iproduct(
+                    black_box(vec![2, 3, 5]),
+                    black_box(vec![7, 11, 13]),
+                )
+            });
+        }
+
+        #[bench]
+        fn b_cart_metho(b: &mut Bencher) {
+            b.iter(|| {
+                cartesian::cartesian_product_w_method(
+                    black_box(vec![2, 3, 5]),
+                    black_box(vec![7, 11, 13]),
+                )
+            });
+        }
+
+        #[bench]
+        fn b_cart_forlp(b: &mut Bencher) {
+            b.iter(move || {
+                cartesian::cartesian_product_for_loop(
+                    black_box(vec![2, 3, 5]),
+                    black_box(vec![7, 11, 13]),
+                )
+            });
+        }
     }
 }
 
@@ -178,8 +216,17 @@ pub fn part1_pretty() {
     println!("day 11 part 1: {}", part1());
 }
 
+// Tries: 1
 fn part2() -> u64 {
-    todo!()
+    let mut grid = get_input();
+
+    for day in 1.. {
+        if grid.step() == grid.grid.len() {
+            return day;
+        }
+    }
+
+    unreachable!()
 }
 
 pub fn part2_pretty() {
@@ -190,10 +237,8 @@ pub fn part2_pretty() {
 mod tests {
     use super::*;
 
-    #[allow(clippy::inconsistent_digit_grouping)]
-    const P1_ANS: u64 = 1____;
-    #[allow(clippy::inconsistent_digit_grouping)]
-    const P2_ANS: u64 = 2____;
+    const P1_ANS: u64 = 1655;
+    const P2_ANS: u64 = 337;
 
     #[test]
     fn t_part1() {
@@ -202,19 +247,31 @@ mod tests {
 
     #[test]
     fn t_part2() {
-        // assert_eq!( , P2_ANS);
+        assert_eq!(part2(), P2_ANS);
     }
 
-    // extern crate test;
-    // use test::{black_box, Bencher};
+    extern crate test;
+    use test::{black_box, Bencher};
 
-    // #[bench]
-    // fn b_part1(b: &mut Bencher) {
-    //     b.iter(|| part1());
-    // }
+    #[bench]
+    fn b_part1(b: &mut Bencher) {
+        b.iter(part1);
+    }
 
-    // #[bench]
-    // fn b_part2(b: &mut Bencher) {
-    //     b.iter(|| part2());
-    // }
+    #[bench]
+    fn b_part2(b: &mut Bencher) {
+        b.iter(part2);
+    }
+
+    #[bench]
+    fn b_grid_step(b: &mut Bencher) {
+        let mut grid = black_box(get_input());
+        let mut flash_count: usize = 0;
+        b.iter(|| flash_count = flash_count.saturating_add(grid.step()));
+    }
+
+    #[bench]
+    fn b_grid_construct(b: &mut Bencher) {
+        b.iter(get_input);
+    }
 }
